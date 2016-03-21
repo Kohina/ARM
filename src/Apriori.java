@@ -62,20 +62,14 @@ public class Apriori {
 	}
 	
 	public ArrayList<ArrayList<Integer>> apriori(ArrayList<ArrayList<Integer>> trans){
+		//TODO: c1 on wrong form prob
 		ArrayList<Integer> c1 = unique1items(trans); //the first pass over T
 		System.out.println(c1);
 		ArrayList<ArrayList<Integer>> filtered = new ArrayList<>();
 		
-		
-		//clean C1 based on minsup
-		for(Integer i : c1){
-			ArrayList<Integer> itemList = new ArrayList<Integer>();
-			itemList.add(i);
-			
-			if(count(itemList, trans) >= minsup){
-				filtered.add(itemList);
+		if(count(c1, trans) >= minsup){
+				filtered.add(c1);
 			}
-		}
 		
 		System.out.println("Result after 1 iter");
 		for(ArrayList<Integer> r : filtered){
@@ -106,31 +100,42 @@ public class Apriori {
 	//TODO: Join step is incorrect, fix
 	private void candidateGen(ArrayList<ArrayList<Integer>> filtered) {
 		cands.clear(); //remove candidates from step k-1
+		
+		//create new pairs
+		newPairs(filtered);
+	}
+
+	private void newPairs(ArrayList<ArrayList<Integer>> filtered) {
+		int sizeOfList = filtered.size();
+		ArrayList<Integer> trans1;
+		ArrayList<Integer> trans2;
+		int trans1Size;
+		int trans2Size;
 		boolean add = true;
 		
-		for(int k=0; k < filtered.size()-1; k++){
-			ArrayList<Integer> trans1 = filtered.get(k);
-			ArrayList<Integer> trans2 = filtered.get(k+1);
-			
-			System.out.println("trans1: " + trans1);
-			System.out.println("trans2: " + trans2);
-			
-			//differ only on last elem? then join
-			if(trans1.subList(0, trans1.size()-1) == trans2.subList(0, trans2.size()-1)){
-				trans1.add(trans2.get(trans2.size()));
+		for(int i=0; i<sizeOfList-1; i++){
+			trans1 = filtered.get(i);
+			trans1Size = trans1.size();
+			for(int j=1; j<sizeOfList; j++){	
+				trans2 = filtered.get(j);
+				trans2Size = trans2.size();
 				
-				//check that all subsets are in filtered
-				for(int j=0; j<=trans1.size(); j++){
-					ArrayList<Integer> checkList = trans1;
-					checkList.remove(j);
+				if(trans1.subList(0, trans1Size-1) == trans2.subList(0, trans2Size-1)){
+					 trans1.add(trans2.get(trans2Size));
 					
-					if(!filtered.contains(checkList)){
-						add = false;
-						break;
-					}
-				}
-				if(add){
-					cands.add(trans1);
+					 //check that all subsets are in filtered
+					 for(int k=0; k<=trans1Size+1; k++){
+						 ArrayList<Integer> checkList = trans1;
+						 checkList.remove(k);
+							
+						 if(!filtered.contains(checkList)){
+							 add = false;
+							 break;
+						 }
+					 }
+					 if(add){
+						 cands.add(trans1);
+					 }
 				}
 			}
 		}
